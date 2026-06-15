@@ -59,10 +59,14 @@ export default function ProjectCard({ project }) {
         </span>
       </div>
 
-      {project.leader_agent_type && (
+      {project.project_collaborators?.length > 0 && (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-500">
           <span>负责人:</span>
-          <span className="font-medium text-gray-700">{project.leader_agent_type.name}</span>
+          <span className="font-medium text-gray-700">
+            {project.project_collaborators
+              .map(c => c.agent_instance?.instance_name)
+              .join('、')}
+          </span>
         </div>
       )}
     </Link>

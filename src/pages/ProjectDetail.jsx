@@ -5,7 +5,7 @@ import { useActivityLog } from '../hooks/useActivityLog'
 import StatusBadge from '../components/StatusBadge'
 import TaskList from '../components/TaskList'
 import ActivityFeed from '../components/ActivityFeed'
-import { ArrowLeft, MapPin, Edit3, Save, X } from 'lucide-react'
+    import { ArrowLeft, MapPin, Edit3, Save, X, Users } from 'lucide-react'
 
 const typeLabels = {
   engineering: '工程', paper: '论文', research: '研究', learning: '学习', literature: '文献',
@@ -111,14 +111,18 @@ export default function ProjectDetail() {
                 <Edit3 className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex items-center gap-3 mt-3 flex-wrap">
               <StatusBadge status={project.status} />
               <span className="text-xs text-gray-400">
                 优先级: {project.priority === 'high' ? '高' : project.priority === 'medium' ? '中' : '低'}
               </span>
-              {project.leader_agent_type && (
-                <span className="text-xs text-gray-400">
-                  负责人: {project.leader_agent_type.name}
+              {project.project_collaborators?.length > 0 && (
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  负责人:
+                  {project.project_collaborators
+                    .map(c => c.agent_instance?.instance_name)
+                    .join('、')}
                 </span>
               )}
             </div>

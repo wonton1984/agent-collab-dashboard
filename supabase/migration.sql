@@ -81,6 +81,19 @@ CREATE TABLE activity_log (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 3.7 project_collaborators
+CREATE TABLE project_collaborators (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  agent_instance_id UUID NOT NULL REFERENCES agent_instances(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(project_id, agent_instance_id)
+);
+
+ALTER TABLE project_collaborators ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read" ON project_collaborators FOR SELECT USING (true);
+CREATE INDEX idx_project_collaborators_project ON project_collaborators(project_id);
+
 -- 索引
 CREATE INDEX idx_agent_instances_api_key ON agent_instances(api_key);
 CREATE INDEX idx_projects_status ON projects(status);

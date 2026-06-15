@@ -18,7 +18,14 @@ export function useProjects(filters = {}) {
               id, instance_name, hostname, platform
             )
           ),
-          tasks (id, status)
+          tasks (id, status),
+          project_collaborators (
+            id,
+            agent_instance:agent_instance_id (
+              id, instance_name,
+              agent_type:agent_type_id (name)
+            )
+          )
         `)
         .order('updated_at', { ascending: false })
 
@@ -65,6 +72,13 @@ export function useProject(id) {
             id, title, description, status, sort_order, parent_task_id,
             assignee_agent:assignee_agent_instance_id (
               id, instance_name
+            )
+          ),
+          project_collaborators (
+            id, role,
+            agent_instance:agent_instance_id (
+              id, instance_name,
+              agent_type:agent_type_id (name)
             )
           )
         `)
