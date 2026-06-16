@@ -158,7 +158,7 @@ CREATE POLICY "Agent insert log" ON activity_log
 INSERT INTO agent_types (name, description, capabilities, icon) VALUES
   ('Codex', 'OpenAI 的 AI 编程助手', ARRAY['frontend', 'engineering', 'react'], 'codex'),
   ('Zcode', '交互式编码 Agent', ARRAY['fullstack', 'debugging', 'engineering'], 'zcode'),
-  ('Cloud Code', 'Google 的云端 IDE Agent', ARRAY['backend', 'cloud', 'engineering'], 'cloud'),
+  ('Claude Code', 'Anthropic 的 Claude Code 编程 Agent', ARRAY['engineering', 'debugging', 'coding'], 'claude'),
   ('Hermes Agent', '通用任务 Agent', ARRAY['paper-writing', 'literature-search', 'research'], 'hermes');
 
 -- 种子数据：agent_instances（示例，api_key 会在插入时自动生成）

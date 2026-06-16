@@ -1,6 +1,6 @@
 # Agent 接入指南
 
-本文档说明如何让你的 AI Agent（Codex、Zcode、Cloud Code、Hermes 等）向 Dashboard 上报进度。
+本文档说明如何让你的 AI Agent（Codex、Zcode、Claude Code、Kimi CLI 等）向 Dashboard 上报进度。
 
 ## 1. 获取 API Key
 
@@ -62,66 +62,109 @@ curl -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/repor
   }'
 ```
 
-## 4. 在你的 Agent 工作流中集成
+## 4. 各 Agent 集成方式
 
-### 方式一：作为 post-action hook（推荐）
+### 4.1 Zcode（推荐：Skill 方式）
 
-在每个 Agent 完成一个任务或里程碑后，自动调用上报 API，例如：
+Zcode 支持 `/skill-name` 命令调用 Skill。已创建 `agent-report` Skill：
 
-```
-# 在 Codex 完成编码后自动上报
-post_task_hook:
-  action: http_post
-  url: https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress
-  headers:
-    x-api-key: ${CODEX_API_KEY}
-  body:
-    project_id: ${CURRENT_PROJECT_ID}
-    event_type: task_complete
-    message: "完成了 ${TASK_DESCRIPTION}"
-    task_title: ${TASK_TITLE}
-    task_status: done
-    local_path: ${PROJECT_DIR}
+```bash
+# 手动触发
+/agent-report
+
+# 或在完成任务后自动触发
 ```
 
-### 方式二：Shell 脚本封装
+Skill 文件位置：`~/.agents/skills/agent-report/SKILL.md`
+
+### 4.2 Codex（AGENTS.md 方式）
+
+Codex 支持 `AGENTS.md` 文件自动注入上下文：
+
+1. 创建 `~/.codex/AGENTS.md`（全局）或项目根目录的 `AGENTS.md`
+2. 文件中包含 Dashboard 接入指令
+3. Codex 会自动读取并在完成任务时上报
+
+### 4.3 Claude Code（CLAUDE.md 方式）
+
+Claude Code 支持 `CLAUDE.md` 文件自动注入上下文：
+
+1. **全局配置**：创建 `~/.claude/CLAUDE.md`（影响所有项目）
+2. **项目级配置**：在每个项目根目录创建 `CLAUDE.md`
+3. Claude Code 启动时会自动加载并遵循其中的指令
+
+示例 `CLAUDE.md` 内容：
+
+```markdown
+# Claude Code — Dashboard 接入指令
+
+当你完成重要任务时，向 Dashboard 上报进度。
+
+API Key 位置：`~/.agent-dashboard/config` 中的 `CLAUDE_CODE=...`
+上报地址：`https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress`
+
+## 创建新项目
+
+当你开始一个新项目时：
+
+```bash
+curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
+  -d '{
+    "create_project": {
+      "name": "项目名称",
+      "description": "项目描述",
+      "project_type": "engineering|paper|research|learning|literature",
+      "priority": "high|medium|low",
+      "tags": ["标签1"]
+    },
+    "event_type": "agent_report",
+    "message": "创建了项目",
+    "local_path": "/当前工作目录"
+  }'
+```
+
+## 上报任务进度
+
+```bash
+curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
+  -d '{
+    "project_id": "项目UUID",
+    "event_type": "task_complete",
+    "message": "完成了XX功能",
+    "task_title": "XX功能",
+    "task_status": "done",
+    "local_path": "/当前工作目录"
+  }'
+```
+
+**重要**：必须传 `task_title` 才能创建任务！
+```
+
+### 4.4 Claude Code / Kimi CLI
+
+这些 Agent 如果没有自动注入机制，可以通过以下方式：
+
+**方式 A：Shell 脚本封装**
 
 ```bash
 #!/bin/bash
-# report.sh - Agent 上报脚本
-API_KEY="你的API_KEY"
+# report.sh
+API_KEY=$(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)
 URL="https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress"
 
-report() {
-  curl -s -X POST "$URL" \
-    -H "Content-Type: application/json" \
-    -H "x-api-key: $API_KEY" \
-    -d "{
-      \"project_id\": \"$1\",
-      \"event_type\": \"$2\",
-      \"message\": \"$3\",
-      \"task_title\": \"$4\",
-      \"task_status\": \"$5\"
-    }"
-}
-
-# 用法
-# report "项目UUID" "task_complete" "完成了XX功能" "XX功能" "done"
+curl -s -X POST "$URL" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $API_KEY" \
+  -d "$1"
 ```
 
-### 方式三：直接在 Agent 提示词中加入
+**方式 B：在提示词中明确要求**
 
-在 Agent 的 system prompt 中添加：
-
-```
-当你完成一个重要任务或里程碑时，需要向 Dashboard 上报进度：
-- 上报地址: https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress
-- API Key: [你的 Key]
-- 请求方式: POST
-- Body 包含: project_id, event_type, message
-
-在你每次完成任务时，生成对应的 curl 命令并执行。
-```
+在每次对话开始时手动粘贴上报指令，或配置默认系统提示。
 
 ## 5. 获取项目 UUID
 
@@ -138,3 +181,4 @@ https://wonton-agent-dashboard.netlify.app/projects/32839098-4378-41cf-b887-767c
 - 上报时如果提供了 `local_path`，系统会自动记录该 Agent 在该机器上的项目位置
 - 如果提供了 `task_title`，系统会自动创建或更新任务，避免重复
 - 所有上报记录会出现在 Dashboard 的 **活动日志** 中
+- **Claude Code 的 `CLAUDE.md` 机制**：与 Codex 的 `AGENTS.md` 类似，但 Claude Code 会自动发现项目目录中的 `CLAUDE.md` 文件并注入上下文，无需额外配置

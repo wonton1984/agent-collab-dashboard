@@ -160,7 +160,7 @@ export const handler = async (event) => {
       }
     }
 
-    // ========== 添加协作者（如果需要）==========
+    // ========== 添加负责人（兼容旧参数名 add_collaborator）==========
     if (add_collaborator) {
       let targetInstanceId = add_collaborator.agent_instance_id
 
@@ -208,7 +208,7 @@ export const handler = async (event) => {
               project_id,
               agent_instance_id: instance.id,
               event_type: 'note',
-              message: `添加了 ${addedInstance?.instance_name || '新成员'} 作为协作者`,
+              message: `添加了 ${addedInstance?.instance_name || '新成员'} 作为负责人`,
             })
         }
       }

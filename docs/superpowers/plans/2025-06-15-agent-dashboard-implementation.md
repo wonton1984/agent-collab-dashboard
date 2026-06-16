@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a web-based dashboard for managing multiple AI agents (Codex, Zcode, Cloud Code, Hermes) and their projects, with Supabase backend and Netlify deployment.
+**Goal:** Build a web-based dashboard for managing multiple AI agents (Codex, Zcode, Claude Code, Hermes) and their projects, with Supabase backend and Netlify deployment.
 
 **Architecture:** Single-page React app (Vite) talking to Supabase PostgreSQL via the official JS SDK. Agents report progress via Supabase REST API. Netlify hosts the frontend and provides optional serverless functions for agent reporting. Data model uses 6 tables normalized around agent_types → agent_instances → projects → project_paths / tasks → activity_log.
 
@@ -516,7 +516,7 @@ CREATE POLICY "Agent insert log" ON activity_log
 INSERT INTO agent_types (name, description, capabilities, icon) VALUES
   ('Codex', 'OpenAI 的 AI 编程助手', ARRAY['frontend', 'engineering', 'react'], 'codex'),
   ('Zcode', '交互式编码 Agent', ARRAY['fullstack', 'debugging', 'engineering'], 'zcode'),
-  ('Cloud Code', 'Google 的云端 IDE Agent', ARRAY['backend', 'cloud', 'engineering'], 'cloud'),
+  ('Claude Code', 'Anthropic 的 Claude Code 编程 Agent', ARRAY['engineering', 'debugging', 'coding'], 'claude'),
   ('Hermes Agent', '通用任务 Agent', ARRAY['paper-writing', 'literature-search', 'research'], 'hermes');
 
 -- 种子数据：agent_instances（示例，api_key 会在插入时自动生成）

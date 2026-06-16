@@ -5,7 +5,7 @@
 
 ## 1. 项目概述
 
-一个集中管理多 AI agent（Codex、Zcode、Cloud Code、Hermes Agent 等）及其项目的 Web 仪表盘，支持查看项目进度、agent 协作情况和跨设备项目路径管理。
+一个集中管理多 AI agent（Codex、Zcode、Claude Code、Hermes Agent 等）及其项目的 Web 仪表盘，支持查看项目进度、agent 协作情况和跨设备项目路径管理。
 
 ## 2. 技术栈
 

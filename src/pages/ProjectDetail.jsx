@@ -133,6 +133,13 @@ export default function ProjectDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">📋 活动日志</h3>
+            <ActivityFeed logs={activityLog} />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <MapPin className="w-4 h-4" />
               存在位置
@@ -163,11 +170,6 @@ export default function ProjectDetail() {
             <h3 className="text-sm font-semibold text-gray-900 mb-3">✅ 任务列表</h3>
             <TaskList projectId={project.id} tasks={project.tasks} />
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">📋 活动日志</h3>
-          <ActivityFeed logs={activityLog} />
         </div>
       </div>
     </div>
