@@ -1,3 +1,146 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================
+   设计系统 — Agent Dashboard
+   风格：柔和中性 + 精致阴影 + 克制配色
+   ============================================ */
+
+:root {
+  /* 品牌主色（indigo 偏蓝，比纯 blue 更有质感） */
+  --brand: #4f46e5;
+  --brand-soft: #eef2ff;
+  --brand-soft-2: #e0e7ff;
+
+  /* 中性背景层 */
+  --bg-canvas: #f7f8fa;      /* 页面底色，比 gray-50 更冷一点 */
+  --bg-surface: #ffffff;     /* 卡片 */
+  --bg-subtle: #f3f4f6;      /* 次级容器 */
+
+  /* 文字 */
+  --text-strong: #111827;
+  --text-default: #374151;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+
+  /* 边框 */
+  --border-default: #e5e7eb;
+  --border-soft: #f0f1f3;
+
+  /* 阴影层级（更柔和、更长投影） */
+  --shadow-xs: 0 1px 2px 0 rgb(17 24 39 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(17 24 39 / 0.06), 0 1px 2px -1px rgb(17 24 39 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(17 24 39 / 0.08), 0 2px 6px -2px rgb(17 24 39 / 0.05);
+  --shadow-lg: 0 12px 28px -6px rgb(17 24 39 / 0.12), 0 6px 12px -4px rgb(17 24 39 / 0.06);
+  --shadow-brand: 0 8px 20px -6px rgb(79 70 229 / 0.35);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-default);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+      'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+      sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* 标题字间距更紧凑、更有设计感 */
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+  }
+
+  /* 细滚动条 */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+    background-clip: content-box;
+    border: 2px solid transparent;
+  }
+
+  /* 选区色 */
+  ::selection {
+    background: var(--brand-soft-2);
+    color: var(--brand);
+  }
+}
+
+@layer components {
+  /* 卡片基类 — 所有白色容器复用 */
+  .card {
+    @apply bg-white rounded-2xl border border-gray-200/80;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* 页面标题 */
+  .page-title {
+    @apply text-2xl font-bold;
+    letter-spacing: -0.03em;
+  }
+
+  /* 段落小标题 */
+  .section-title {
+    @apply text-sm font-semibold text-gray-900;
+    letter-spacing: -0.01em;
+  }
+
+  /* 渐变进度条 */
+  .progress-bar {
+    @apply rounded-full h-2 transition-all duration-300;
+    background-image: linear-gradient(90deg, #6366f1, #4f46e5);
+  }
+
+  /* 主按钮 */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white;
+    background-image: linear-gradient(180deg, #6366f1, #4f46e5);
+    box-shadow: var(--shadow-brand);
+    @apply transition-all duration-200 hover:brightness-110 active:scale-[0.98];
+  }
+
+  /* 次级按钮 */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 active:scale-[0.98];
+  }
+
+  /* 输入框 */
+  .input {
+    @apply w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white transition-all duration-150;
+    @apply focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400;
+  }
+}
+
+@layer utilities {
+  /* 文字渐隐渐显（用于截断行） */
+  .text-balance {
+    text-wrap: balance;
+  }
+}

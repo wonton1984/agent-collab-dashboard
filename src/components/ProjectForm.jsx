@@ -27,30 +27,32 @@ export default function ProjectForm({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">新建项目</h3>
-          <button onClick={onClose}><X className="w-5 h-5 text-gray-400" /></button>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-bold text-gray-900">新建项目</h3>
+          <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">项目名称 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">项目名称 *</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="input"
               placeholder="输入项目名称"
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">项目类型</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">项目类型</label>
             <select
               value={form.project_type}
               onChange={(e) => setForm({ ...form, project_type: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
+              className="input"
             >
               {projectTypes.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -58,12 +60,12 @@ export default function ProjectForm({ onClose }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">描述</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="input resize-none"
               placeholder="项目描述（可选）"
             />
           </div>
@@ -71,16 +73,16 @@ export default function ProjectForm({ onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+              className="btn-ghost flex-1 justify-center"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={createProject.isPending}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary flex-1 justify-center disabled:opacity-50"
             >
-              {createProject.isPending ? '创建中...' : '创建'}
+              {createProject.isPending ? '创建中…' : '创建项目'}
             </button>
           </div>
         </form>

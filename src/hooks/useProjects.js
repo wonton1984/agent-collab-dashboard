@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import { adminUpdateProject } from '../lib/adminApi'
 
 export function useProjects(filters = {}) {
   return useQuery({
@@ -113,19 +114,50 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }) => {
-      const { data, error } = await supabase
-        .from('projects')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single()
-      if (error) throw error
-      return data
+    // 走 admin-project Function（service role），绕过表的 RLS。
+    // 失败可能抛 AdminAuthRequiredError —— 调用方需捕获并弹 token 输入框。
+    mutationFn: async ({ id, token, ...fields }) => {
+      const result = await adminUpdateProject(id, fields, token)
+      return result.project
     },
-    onSuccess: (data) => {
+    // 乐观更新：拖拽时立刻在 UI 反映，无需等服务器
+    onMutate: async ({ id, token, ...fields }) => {
+      // 取消所有 projects 查询，避免覆盖乐观更新
+      await queryClient.cancelQueries({ queryKey: ['projects'] })
+      await queryClient.cancelQueries({ queryKey: ['project', id] })
+
+      // 快照所有相关缓存以便失败回滚
+      const projectsSnapshots = queryClient.getQueriesData({ queryKey: ['projects'] })
+      const projectSnapshot = queryClient.getQueryData(['project', id])
+
+      // 更新所有 projects 列表缓存中的对应项
+      queryClient.setQueriesData({ queryKey: ['projects'] }, (old) => {
+        if (!Array.isArray(old)) return old
+        return old.map(p => p.id === id ? { ...p, ...fields } : p)
+      })
+
+      // 更新单项详情缓存
+      if (projectSnapshot) {
+        queryClient.setQueryData(['project', id], { ...projectSnapshot, ...fields })
+      }
+
+      return { projectsSnapshots, projectSnapshot }
+    },
+    onError: (_err, { id }, ctx) => {
+      // 回滚所有快照
+      if (ctx?.projectsSnapshots) {
+        for (const [key, data] of ctx.projectsSnapshots) {
+          queryClient.setQueryData(key, data)
+        }
+      }
+      if (ctx?.projectSnapshot) {
+        queryClient.setQueryData(['project', id], ctx.projectSnapshot)
+      }
+    },
+    onSettled: (_data, _err, { id }) => {
+      // 最终用服务端的权威数据校正一次
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      queryClient.invalidateQueries({ queryKey: ['project', data.id] })
+      if (id) queryClient.invalidateQueries({ queryKey: ['project', id] })
     },
   })
 }

@@ -11,7 +11,7 @@ grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2
 
 Dashboard API 地址：
 ```
-https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress
+https://agent-dashboard-gamma-blond.vercel.app/api/report-progress
 ```
 
 ## 1. 创建新项目
@@ -19,7 +19,7 @@ https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress
 当你开始一个新项目时：
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{
@@ -41,7 +41,7 @@ curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/re
 完成一个任务后要同时传 `task_title`（不能只传 message）：
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{
@@ -60,7 +60,7 @@ curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/re
 ## 3. 修改项目信息
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{
@@ -75,7 +75,7 @@ curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/re
 ## 4. 添加协作者
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{

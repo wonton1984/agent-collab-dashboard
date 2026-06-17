@@ -3,20 +3,12 @@ import { useActivityLog } from '../hooks/useActivityLog'
 import { Link } from 'react-router-dom'
 import { CalendarDays } from 'lucide-react'
 
-const eventIcons = {
-  status_change: '🔄',
-  task_complete: '✅',
-  note: '📝',
-  manual_edit: '✏️',
-  agent_report: '🤖',
-}
-
-const eventLabels = {
-  status_change: '状态变更',
-  task_complete: '任务完成',
-  note: '备注',
-  manual_edit: '手动编辑',
-  agent_report: 'Agent 上报',
+const eventConfig = {
+  status_change: { icon: '🔄', label: '状态变更', ring: 'bg-gray-100' },
+  task_complete: { icon: '✅', label: '任务完成', ring: 'bg-emerald-100' },
+  note:          { icon: '📝', label: '备注',     ring: 'bg-amber-100' },
+  manual_edit:   { icon: '✏️', label: '手动编辑', ring: 'bg-blue-100' },
+  agent_report:  { icon: '🤖', label: 'Agent 上报', ring: 'bg-violet-100' },
 }
 
 function formatDate(dateStr) {
@@ -24,7 +16,6 @@ function formatDate(dateStr) {
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
-
   if (d.toDateString() === today.toDateString()) return '今天'
   if (d.toDateString() === yesterday.toDateString()) return '昨天'
   return d.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })
@@ -46,64 +37,76 @@ export default function ActivityLog() {
   })
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64 text-gray-400">加载中...</div>
+    return <div className="flex items-center justify-center h-64 text-gray-400">加载中…</div>
   }
 
   return (
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">📋 活动日志</h2>
+        <div>
+          <h2 className="page-title">活动日志</h2>
+          <p className="text-sm text-gray-400 mt-1">所有 Agent 与项目的操作历史</p>
+        </div>
         <select
           value={eventFilter}
           onChange={(e) => setEventFilter(e.target.value)}
-          className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 bg-white"
+          className="input !w-auto !py-1.5 text-sm"
         >
           <option value="">全部类型</option>
-          {Object.entries(eventLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
+          {Object.entries(eventConfig).map(([value, cfg]) => (
+            <option key={value} value={value}>{cfg.label}</option>
           ))}
         </select>
       </div>
 
       {Object.keys(grouped).length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-16 text-gray-300">
           <CalendarDays className="w-12 h-12 mx-auto mb-3" />
-          <p>暂无活动记录</p>
+          <p className="text-sm text-gray-400">暂无活动记录</p>
         </div>
       ) : (
         <div className="space-y-8">
           {Object.entries(grouped).map(([date, dayLogs]) => (
             <div key={date}>
-              <h3 className="text-sm font-semibold text-gray-500 mb-3 sticky top-0 bg-gray-50 py-2">{date}</h3>
+              <div className="flex items-center gap-3 mb-3">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{date}</h3>
+                <span className="flex-1 h-px bg-gray-100" />
+                <span className="text-xs text-gray-300">{dayLogs.length} 条</span>
+              </div>
               <div className="space-y-2">
-                {dayLogs.map((log) => (
-                  <div key={log.id} className="bg-white rounded-lg border border-gray-200 p-4">
-                    <div className="flex items-start gap-3">
-                      <span className="text-lg">{eventIcons[log.event_type] || '📌'}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400">{formatTime(log.created_at)}</span>
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                            {eventLabels[log.event_type] || log.event_type}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-700 mt-1">
-                          {log.agent_instance ? (
-                            <span className="font-medium">{log.agent_instance.instance_name}</span>
-                          ) : (
-                            <span className="font-medium">你</span>
+                {dayLogs.map((log) => {
+                  const cfg = eventConfig[log.event_type] || { icon: '📌', label: log.event_type, ring: 'bg-gray-100' }
+                  return (
+                    <div key={log.id} className="card p-4">
+                      <div className="flex items-start gap-3">
+                        <span className={`w-8 h-8 rounded-full ${cfg.ring} flex items-center justify-center text-sm flex-shrink-0`}>
+                          {cfg.icon}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400 tabular-nums">{formatTime(log.created_at)}</span>
+                            <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-50 text-gray-500">
+                              {cfg.label}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                            {log.agent_instance ? (
+                              <span className="font-semibold text-gray-800">{log.agent_instance.instance_name}</span>
+                            ) : (
+                              <span className="font-semibold text-gray-800">你</span>
+                            )}
+                            {' '}{log.message}
+                          </p>
+                          {log.project && (
+                            <Link to={`/projects/${log.project.id}`} className="inline-block text-xs text-indigo-500 hover:text-indigo-700 hover:underline mt-1">
+                              {log.project.name}
+                            </Link>
                           )}
-                          {' '}{log.message}
-                        </p>
-                        {log.project && (
-                          <Link to={`/projects/${log.project.id}`} className="text-blue-600 hover:underline text-xs mt-1 inline-block">
-                            {log.project.name}
-                          </Link>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           ))}

@@ -14,7 +14,7 @@
 ### 接口地址
 
 ```
-POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress
+POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress
 ```
 
 ### 请求头
@@ -52,7 +52,7 @@ POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progre
 用 curl 测试上报：
 
 ```bash
-curl -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: 你的API_KEY" \
   -d '{
@@ -85,6 +85,20 @@ Codex 支持 `AGENTS.md` 文件自动注入上下文：
 2. 文件中包含 Dashboard 接入指令
 3. Codex 会自动读取并在完成任务时上报
 
+#### 4.2.1 Windows 上的 Codex
+
+Windows 是独立 Agent 实例（与 Mac 的 Codex 互不共用 Key），有专门的接入文档：
+
+📖 **完整指南**：[`docs/CODEX-WINDOWS-AGENTS.md`](./docs/CODEX-WINDOWS-AGENTS.md)
+
+要点：
+- **实例名**：`Codex (Windows)`，专属 API Key 见文档
+- **配置文件**：`%USERPROFILE%\.agent-dashboard\config`（变量名 `CODEX_WINDOWS`）
+- **用 PowerShell**：Mac 文档里的 `grep`/bash 语法在 Windows 不适用，需用 `Select-String` + `ConvertTo-Json`（后者自动转义反斜杠，避免 `C:\Users` 破坏 JSON）
+- **AGENTS.md 位置**：全局 `C:\Users\<你>\.codex\AGENTS.md`，或项目根目录
+
+Mac 上的 Codex（实例 `Codex（MacBook Pro）`）仍用 bash + `grep` 方式，Key 见 `~/.agent-dashboard/config` 中的 `CODEX=`。
+
 ### 4.3 Claude Code（CLAUDE.md 方式）
 
 Claude Code 支持 `CLAUDE.md` 文件自动注入上下文：
@@ -101,14 +115,14 @@ Claude Code 支持 `CLAUDE.md` 文件自动注入上下文：
 当你完成重要任务时，向 Dashboard 上报进度。
 
 API Key 位置：`~/.agent-dashboard/config` 中的 `CLAUDE_CODE=...`
-上报地址：`https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress`
+上报地址：`https://agent-dashboard-gamma-blond.vercel.app/api/report-progress`
 
 ## 创建新项目
 
 当你开始一个新项目时：
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{
@@ -128,7 +142,7 @@ curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/re
 ## 上报任务进度
 
 ```bash
-curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress \
+curl -s -X POST https://agent-dashboard-gamma-blond.vercel.app/api/report-progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: $(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)" \
   -d '{
@@ -154,7 +168,7 @@ curl -s -X POST https://wonton-agent-dashboard.netlify.app/.netlify/functions/re
 #!/bin/bash
 # report.sh
 API_KEY=$(grep "^CLAUDE_CODE=" ~/.agent-dashboard/config | cut -d'=' -f2)
-URL="https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress"
+URL="https://agent-dashboard-gamma-blond.vercel.app/api/report-progress"
 
 curl -s -X POST "$URL" \
   -H "Content-Type: application/json" \
@@ -171,13 +185,14 @@ curl -s -X POST "$URL" \
 在 Dashboard → **项目** 页面，点击项目进入详情页，浏览器 URL 最后一段就是项目 UUID：
 
 ```
-https://wonton-agent-dashboard.netlify.app/projects/32839098-4378-41cf-b887-767c0d99f265
+https://agent-dashboard-gamma-blond.vercel.app/projects/32839098-4378-41cf-b887-767c0d99f265
                                             └─────────────── UUID ──────────────────┘
 ```
 
 ## 6. 注意事项
 
 - API Key 关联到具体的 Agent 实例（某台机器上的某个 Agent），不同机器不同 Agent 使用不同的 Key
+  - 例：Codex 在 Mac 和 Windows 是两个独立实例，各自有独立 Key，不要混用
 - 上报时如果提供了 `local_path`，系统会自动记录该 Agent 在该机器上的项目位置
 - 如果提供了 `task_title`，系统会自动创建或更新任务，避免重复
 - 所有上报记录会出现在 Dashboard 的 **活动日志** 中

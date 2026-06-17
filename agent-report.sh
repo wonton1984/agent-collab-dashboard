@@ -3,7 +3,7 @@
 # 用法: ./agent-report.sh <project_id> <event_type> <message> [task_title] [task_status] [local_path]
 
 API_KEY="${AGENT_API_KEY:-}"
-URL="https://wonton-agent-dashboard.netlify.app/.netlify/functions/report-progress"
+URL="https://agent-dashboard-gamma-blond.vercel.app/api/report-progress"
 
 if [ -z "$API_KEY" ]; then
   echo "❌ 请设置 AGENT_API_KEY 环境变量"
